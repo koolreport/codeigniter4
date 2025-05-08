@@ -8,7 +8,6 @@ trait Friendship
 {
     public function __constructFriendship()
     {
-
         //assets folder
         $assets = Utility::get($this->reportSettings, "assets");
         if ($assets == null) {
@@ -30,23 +29,11 @@ trait Friendship
             $this->reportSettings["assets"] = $assets;
         }
 
-        if (!file_exists($file_path = APPPATH . 'config/' . ENVIRONMENT . '/database.php')
-            && !file_exists($file_path = APPPATH . 'config/database.php')) {
-            return;
-        }
-
-        if (!function_exists('get_db_groups')) {
-            function get_db_groups()
-            {
-                $config = \config('Database');
-                return array_filter(array_keys((array)$config), function($key) {
-                    return $key !== 'instance';
-                });
-            }
-        }
-        
         // Usage:
-        $dbGroups = get_db_groups();
+        $config = \config('Database');
+        $dbGroups = array_filter(array_keys((array)$config), function($key) {
+            return $key !== 'filesPath' && $key !== 'defaultGroup';
+        });
         $dbSources = array();
         foreach ($dbGroups as $name) {
             $dbSources[$name] = array(
@@ -56,6 +43,5 @@ trait Friendship
         }
         $dataSources = Utility::get($this->reportSettings, "dataSources", array());
         $this->reportSettings["dataSources"] = array_merge($dbSources, $dataSources);
-
     }
 }
